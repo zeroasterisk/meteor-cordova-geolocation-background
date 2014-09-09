@@ -5,11 +5,6 @@ Tinytest.add('init', function (test) {
   test.equal(true, true);
 });
 
-Tinytest.add('foreground', function (test) {
-  // test: location requested in foreground
-  test.equal(true, true);
-});
-
 Tinytest.add('background-android', function (test) {
   // test: location requested in background - android
   test.equal(true, true);
