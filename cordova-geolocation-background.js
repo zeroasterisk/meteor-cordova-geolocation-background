@@ -102,6 +102,14 @@ GeolocationBG = {
     }
     if (!_.has(window, 'plugins') || !_.isObject(window.plugins)) {
       console.error('window.plugins does not exist');
+
+// ----------------
+// TEMP DEBUGGING
+for (var key in window) {
+console.log(' window.' + key + ' ~ ' + typeof window[key]);
+}
+// ----------------
+
       return false;
     }
     if (!_.has(window.plugins, 'backgroundGeoLocation') || !_.isObject(window.plugins.backgroundGeoLocation)) {
@@ -239,9 +247,7 @@ GeolocationBG = {
    * @param object location
    */
   device: function() {
-    if (!device) {
-      return 'noDeviceObj';
-    }
+    device = device || {};
     if (!_.isObject(device)) {
       return 'errDeviceNotObject';
     }
@@ -263,9 +269,7 @@ GeolocationBG = {
    * @param object location
    */
   uuid: function() {
-    if (!device) {
-      return 'noDeviceObj';
-    }
+    device = device || {};
     if (!_.isObject(device)) {
       return 'errDeviceNotObject';
     }
