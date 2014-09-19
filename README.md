@@ -189,7 +189,7 @@ You may also use the
 package, which is really thin and simple, but seems to be effective.
 
 You may also use the
-[zeroasterisk:geolocation-foreground](https://github.com/zeroasterisk/Meteor-Cordova-Geolocation)
+[zeroasterisk:geolocation-foreground](https://github.com/zeroasterisk/meteor-cordova-geolocation-foreground)
 package, which is an approach at Geolocation more close to the original Cordova examples.
 
 
