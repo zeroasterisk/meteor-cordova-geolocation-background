@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Cordova enabled background geolocation, even when closed/suspended",
-  version: "0.0.1",
+  version: "0.0.2",
   name: "zeroasterisk:cordova-geolocation-background",
   git: "https://github.com/zeroasterisk/meteor-cordova-geolocation-background"
 });
@@ -13,15 +13,15 @@ Cordova.depends({
 
 
 Package.onUse(function(api) {
-  api.versionsFrom('METEOR@0.9.2-rc1');
-  api.use('underscore');
-  api.addFiles('cordova-geolocation.js', 'client');
+  api.versionsFrom('METEOR@0.9.2');
+  api.use('underscore', 'client');
+  api.use('http', 'client');
+  api.export('GeolocationBG', 'client');
   api.addFiles('cordova-geolocation-background.js', 'client');
 });
 
 Package.onTest(function(api) {
   api.use('tinytest');
-  api.use('cordova-geolocation-background');
-  api.addFiles('cordova-geolocation-tests.js', 'client');
+  api.use('zeroasterisk:cordova-geolocation-background');
   api.addFiles('cordova-geolocation-background-tests.js', 'client');
 });

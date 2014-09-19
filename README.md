@@ -62,66 +62,136 @@ curl -v -H "Content-Type: application/json" -X PUT --data '{"longitude":123.333,
 
 ## Setup Cordova Android
 
+Should be automatic if you configure the Plugin
 
 ## Setup Cordova iOS
 
-...
+Should be automatic if you configure the Plugin
 
-## Start / Stop the Background Service
+## Setup This Plugin (isCordova on the client)
 
-...
+Here is the "default" config with some notes to help.
+
+Pass in only what you need to overwrite...
+
+You *must set* the `url` options.
+
+```
+if (Meteor.isCordova) {
+  GeolocationBG.config({
+    // your server url to send locations to
+    //   YOU MUST SET THIS TO YOUR SERVER'S URL
+    //   (see the setup instructions below)
+    url: 'http://example.com/api/geolocation',
+    params: {
+      // will be sent in with 'location' in POST data (root level params)
+      // these will be added automatically in setup()
+      //userId: GeolocationBG.userId(),
+      //uuid:   GeolocationBG.uuid(),
+      //device: GeolocationBG.device()
+    },
+    headers: {
+      // will be sent in with 'location' in HTTP Header data
+    },
+    desiredAccuracy: 10,
+    stationaryRadius: 20,
+    distanceFilter: 30,
+    // Android ONLY, customize the title of the notification
+    notificationTitle: 'Background GPS',
+    // Android ONLY, customize the text of the notification
+    notificationText: 'ENABLED',
+    //
+    activityType: 'AutomotiveNavigation',
+    // enable this hear sounds for background-geolocation life-cycle.
+    debug: false
+  });
+}
+```
+
+No `params` or `headers` are required, but you can add whatever you like...
+which you can use on the server as validation, or as extra data to log/use.
+
+## Setup IronRouter to Receive POSTed data (isServer)
+
+You can "receive" the POSTed data however you like, but I recommend via
+server-side routes on IronRouter.
+
+* [instructions](http://www.meteorpedia.com/read/REST_API#iron-router server-side routes)
+* [rest-api](https://github.com/awatson1978/rest-api)
+
+```
+Router.map(function() {
+  // REST(ish) API
+  // Cordova background/foreground can post GPS data HERE
+  //
+  // POST data should be in this format
+  //   {
+  //     location: {
+  //       latitude: Number,
+  //       longitude: Number,
+  //       accuracy: Match.Optional(Number),
+  //       speed: Match.Optional(Number),
+  //       recorded_at: Match.Optional(String)
+  //     },
+  //     userId: Match.Optional(String),
+  //     uuid: Match.Optional(String),
+  //     device: Match.Optional(String)
+  //   }
+  this.route('GeolocationBGRoute', {
+    path: 'api/geolocation',
+    where: 'server',
+    action: function() {
+      // GET, POST, PUT, DELETE
+      var requestMethod = this.request.method;
+      // Data from a POST request
+      var requestData = this.request.body;
+
+      // log stuff
+      //console.log('GeolocationBG post: ' + requestMethod);
+      //console.log(JSON.stringify(requestData));
+
+      // TODO: security/validation
+      //  require some security with data
+      //  validate userId/uuid/etc (inside Meteor.call?)
+
+      // Can insert into a Collection from the server (or whatever)
+      if (GeolocationLog.insert(requestData)) {
+        this.response.writeHead(200, {'Content-Type': 'application/json'});
+        this.response.end('ok');
+        return;
+      }
+
+      // if we end up with an error case, you can return 500
+      this.response.writeHead(500, {'Content-Type': 'application/json'});
+      this.response.end('failure');
+    }
+  });
+});
+```
+
+## Start / Stop the Background Service (isCordova on the client)
+
+```
+GeolocationBG.start();
+GeolocationBG.stop();
+```
 
 ## Get Geolocation "now" in the Foreground
 
 This is actually a part the [Cordova Geolocation Plugin](http://plugins.cordova.io/#/package/org.apache.cordova.geolocation).
 
 Cordova has a simple API for getting the current location or watching it,
-either way calling a success function with the location data:
+either way calling a success function with the location data... you can use
+their code examples if you want.
 
-```
-navigator.geolocation.getCurrentPosition(geolocationSuccess,
-		[geolocationError],
-		[geolocationOptions]);
+You may also use the
+[mdg:geolocation](https://github.com/meteor/mobile-packages/tree/master/packages/mdg:geolocation)
+package, which is really thin and simple, but seems to be effective.
 
-// onSuccess Callback
-// This method accepts a Position object, which contains the
-// current GPS coordinates
-//
-var onSuccess = function(position) {
-    alert('Latitude: '          + position.coords.latitude          + '\n' +
-          'Longitude: '         + position.coords.longitude         + '\n' +
-          'Altitude: '          + position.coords.altitude          + '\n' +
-          'Accuracy: '          + position.coords.accuracy          + '\n' +
-          'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-          'Heading: '           + position.coords.heading           + '\n' +
-          'Speed: '             + position.coords.speed             + '\n' +
-          'Timestamp: '         + position.timestamp                + '\n');
-};
+You may also use the
+[zeroasterisk:geolocation-foreground](https://github.com/zeroasterisk/Meteor-Cordova-Geolocation)
+package, which is an approach at Geolocation more close to the original Cordova examples.
 
-// onError Callback receives a PositionError object
-//
-function onError(error) {
-    alert('code: '    + error.code    + '\n' +
-          'message: ' + error.message + '\n');
-}
 
-navigator.geolocation.getCurrentPosition(onSuccess, onError);
-
-var watchID = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000 });
-
-navigator.geolocation.clearWatch(watchID)
-```
-
-I have exposed a Meteor-ish convenient wrapper for this.
-
-```
-Geolocation.get(function(position) {
-}, geolocationOptions);
-
-var watchID = Geolocation.watch(function(position) {
-}, 30000, geolocationOptions);
-
-Geolocation.clearWatch(watchID);
-```
 
 
