@@ -34,32 +34,6 @@ meteor add zeroasterisk:meteor-cordova-geolocation-background
 * userId (of the `Meteor.userId`, if available)
 * key (simple `Meteor.identity` key to act as a simple security measure)
 
-## Setup a Receiever on the Meteor Server
-
-You can do this any way you like, but if you're using IronRouter you can
-implement as follows:
-
-```
-....
-```
-
-That example will listen on the path `/api/geoloaction` and then "validate" the
-reponse.
-
-If valid, it will then update the `User.location` to the current location.
-
-It will also log the location in `UserLocations` which may be useful to have
-a historical log of past locations (though beware of blowing up your database).
-
-Note, I use the `zeroasterisk:throttle` package to limit the possible
-"flooding" of the path to 100 requests every second (scale as needed).
-
-You can test this with curl, you don't even have to fire up Cordova.
-
-```
-curl -v -H "Content-Type: application/json" -X PUT --data '{"longitude":123.333,"latitude":123.555,"uuid":"curl","userId":"curltest1","key":"test"}' 'http://localhost:3000/api/geoloaction'
-```
-
 ## Setup Cordova Android
 
 Should be automatic if you configure the Plugin
@@ -110,6 +84,21 @@ if (Meteor.isCordova) {
 
 No `params` or `headers` are required, but you can add whatever you like...
 which you can use on the server as validation, or as extra data to log/use.
+
+## Setup a Receiver on the Meteor Server
+
+You can do this any way you like, but if you're using IronRouter you can
+implement as described below.
+
+Note, I use the `zeroasterisk:throttle` package to limit the possible
+"flooding" of the path to 100 requests every second (scale as needed).
+
+You can test this with curl, you don't even have to fire up Cordova.
+
+```
+curl -v -H "Content-Type: application/json" -X PUT --data '{"coords":{"longitude":123.333,"latitude":123.555,"speed":0,"accuracy":0},"uuid":"curl","userId":"curltest1","device":"test"}' 'http://localhost:3000/api/geoloaction'
+```
+
 
 ## Setup IronRouter to Receive POSTed data (isServer)
 
