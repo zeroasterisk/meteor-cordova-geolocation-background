@@ -96,7 +96,7 @@ Note, I use the `zeroasterisk:throttle` package to limit the possible
 You can test this with curl, you don't even have to fire up Cordova.
 
 ```
-curl -v -H "Content-Type: application/json" -X PUT --data '{"coords":{"longitude":123.333,"latitude":123.555,"speed":0,"accuracy":0},"uuid":"curl","userId":"curltest1","device":"test"}' 'http://localhost:3000/api/geoloaction'
+curl -v -H "Content-Type: application/json" -X PUT --data '{"location":{"coords":{"longitude":123.333,"latitude":123.555,"speed":0,"accuracy":0}},"uuid":"curl","userId":"curltest1","device":"test"}' 'http://localhost:3000/api/geoloaction'
 ```
 
 

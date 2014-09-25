@@ -6,8 +6,8 @@
  *   https://github.com/christocracy/cordova-plugin-background-geolocation
  *
  * common:
- *   GeolocationBG.avail()
- *     [true/false] is this available?
+ *   GeolocationBG.setup()
+ *     [true/false] is this available and setup?
  *   GeolocationBG.config(options)
  *     getter/setter
  *   GeolocationBG.start()
@@ -61,13 +61,11 @@ GeolocationBG = {
 
   // placeholders
   bgGeo: null,
+  fgGeo: null,
   isStarted: false,
 
   // start background service
   start: function() {
-    if (!this.avail()) {
-      return false;
-    }
     if (!this.isStarted) {
       this.get();
     }
@@ -83,9 +81,6 @@ GeolocationBG = {
 
   // stop background service
   stop: function() {
-    if (!this.avail()) {
-      return false;
-    }
     if (!this.setup()) {
       console.error('GeolocationBG unable to setup, unable to stop');
       return false;
@@ -94,29 +89,58 @@ GeolocationBG = {
     return true;
   },
 
-  // is this plugin available? utility
-  avail: function() {
-    if (!_.isObject(window)) {
-      console.error('window does not exist');
+  // where is this plugin available?
+  //   get it whereever we can find it, and assign it to this.bgGeo
+  getPlugin: function() {
+    if (_.isObject(this.bgGeo)) {
+      return this.bgGeo;
+    }
+    console.log('backgroundGeoLocation ~ ' + typeof backgroundGeoLocation);
+    if (typeof backgroundGeoLocation == "object") {
+      this.bgGeo = backgroundGeoLocation || null;
+      if (_.isObject(this.bgGeo)) {
+        return this.bgGeo;
+      }
+    }
+    console.log('window.backgroundGeoLocation ~ ' + typeof window.backgroundGeoLocation);
+    if (typeof window.backgroundGeoLocation == "object") {
+      this.bgGeo = window.backgroundGeoLocation || null;
+      if (_.isObject(this.bgGeo)) {
+        return this.bgGeo;
+      }
+    }
+    if (typeof window.plugins == "object") {
+      console.log('window.plugins.backgroundGeoLocation ~ ' + typeof window.plugins.backgroundGeoLocation);
+      if (typeof window.plugins.backgroundGeoLocation == "object") {
+        this.bgGeo = window.plugins.backgroundGeoLocation || null;
+        if (_.isObject(this.bgGeo)) {
+          return this.bgGeo;
+        }
+      }
+    }
+    if (typeof cordova != "object") {
+      console.error('No cordova object in global scope');
       return false;
     }
-    if (!_.has(window, 'plugins') || !_.isObject(window.plugins)) {
-      console.error('window.plugins does not exist');
-
-// ----------------
-// TEMP DEBUGGING
+    console.log('cordova.backgroundGeoLocation ~ ' + typeof cordova.backgroundGeoLocation);
+    if (typeof cordova.backgroundGeoLocation == "object") {
+      this.bgGeo = cordova.backgroundGeoLocation || null;
+      if (_.isObject(this.bgGeo)) {
+        return this.bgGeo;
+      }
+    }
+    if (typeof cordova.plugins == "object") {
+      console.log('cordova.plugins.backgroundGeoLocation ~ ' + typeof cordova.plugins.backgroundGeoLocation);
+      if (typeof cordova.plugins.backgroundGeoLocation == "object") {
+        this.bgGeo = cordova.plugins.backgroundGeoLocation || null;
+        if (_.isObject(this.bgGeo)) {
+          return this.bgGeo;
+        }
+      }
+    }
 for (var key in window) {
-console.log(' window.' + key + ' ~ ' + typeof window[key]);
+  console.log('  window.' + key + ' ~ ' + typeof window[key]);
 }
-// ----------------
-
-      return false;
-    }
-    if (!_.has(window.plugins, 'backgroundGeoLocation') || !_.isObject(window.plugins.backgroundGeoLocation)) {
-      console.error('window.plugins.backgroundGeoLocation does not exist');
-      return false;
-    }
-    return true;
   },
 
   /**
@@ -141,13 +165,11 @@ console.log(' window.' + key + ' ~ ' + typeof window[key]);
     if (!_.isNull(this.bgGeo)) {
       return true;
     }
-    if (!this.avail()) {
+    this.getPlugin();
+    if (!_.isObject(this.bgGeo)) {
       console.log('GeolocationBG.setup failed = not avail');
       return false;
     }
-    console.log('GeolocationBG: setup: initialize the plugin');
-    GeolocationBG.bgGeo = window.plugins.backgroundGeoLocation;
-
     // update the options with automatic params
     //   params will be sent in with 'location' in POST data (root level params)
     this.options.params.userId = GeolocationBG.userId();
@@ -280,6 +302,29 @@ console.log(' window.' + key + ' ~ ' + typeof window[key]);
   },
 
   /**
+   * Get the navigator.geolocation plugin (foreground)
+   *
+   */
+  getPluginFG: function() {
+    if (_.isObject(this.fgGeo)) {
+      return this.fgGeo;
+    }
+    this.fgGeo = window.navigator.geolocation || null;
+    if (_.isObject(this.fgGeo)) {
+      return this.fgGeo;
+    }
+    this.fgGeo = navigator.geolocation || null;
+    if (_.isObject(this.fgGeo)) {
+      return this.fgGeo;
+    }
+    this.fgGeo = geolocation || null;
+    if (_.isObject(this.fgGeo)) {
+      return this.fgGeo;
+    }
+    console.error('navigator.geolocation does not exist');
+  },
+
+  /**
    * Get the current/realtime location (not in BG)
    *
    * Your app must execute AT LEAST ONE call for the current position via standard Cordova geolocation,
@@ -287,7 +332,12 @@ console.log(' window.' + key + ' ~ ' + typeof window[key]);
    */
   get: function() {
     console.log('GeolocationBG: get: init');
-    window.navigator.geolocation.getCurrentPosition(function(location) {
+    this.getPluginFG();
+    if (!_.isObject(this.fgGeo)) {
+      console.error('GeolocationBG: get: failure... navigator.geolocation not available');
+      return;
+    }
+    this.fgGeo.getCurrentPosition(function(location) {
       console.log('GeolocationBG: get: got');
       GeolocationBG.send(location);
     });
