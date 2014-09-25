@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Cordova enabled background geolocation, even when closed/suspended",
-  version: "0.0.4",
+  version: "0.0.5",
   name: "zeroasterisk:cordova-geolocation-background",
   git: "https://github.com/zeroasterisk/meteor-cordova-geolocation-background"
 });
