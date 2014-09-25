@@ -86,6 +86,7 @@ GeolocationBG = {
       return false;
     }
     this.bgGeo.stop()
+    this.isStarted = false;
     return true;
   },
 
@@ -195,7 +196,7 @@ for (var key in window) {
 
     // BackgroundGeoLocation is highly configurable.
     // (NOTE: Android service is automatic)
-    GeolocationBG.bgGeo.configure(callbackFn, failureFn, optionsBG);
+    GeolocationBG.bgGeo.configure(callbackFn, failureFn, this.options);
 
     console.log('GeolocationBG: setup: end');
     return true;
