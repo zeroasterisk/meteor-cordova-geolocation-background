@@ -6,6 +6,8 @@ This is a Meteor Smart Package which installs the
 and exposes a simpler API to setup, configure, and start/stop the background
 service.
 
+See an [example application using it here](https://github.com/zeroasterisk/meteor-cordova-geolocation-example).
+
 ## How it Works
 
 1. Meteor build Cordova with this Plugin
