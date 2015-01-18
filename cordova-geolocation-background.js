@@ -210,9 +210,16 @@ for (var key in window) {
   send: function(location) {
     console.log('GeolocationBG: send: init');
 
-    if (!_.isObject(location) || !_.has(location, 'longitude')) {
+    if (!_.isObject(location)) {
       console.error('GeolocationBG: send: error - location is invalid');
-      return;
+    } 
+    if (!_.has(location, 'longitude')) {
+      if (_.has(location, 'coords')) {
+        location = location.coords;
+      } else {
+        console.error('GeolocationBG: send: error - location is invalid');
+        return;
+      }
     }
 
     var options = _.extend({
