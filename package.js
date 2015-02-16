@@ -8,7 +8,7 @@ Package.describe({
 Cordova.depends({
   // http://plugins.cordova.io/#/package/com.romainstrock.cordova.background-geolocation
   'com.romainstrock.cordova.background-geolocation': '0.3.9',
-  'org.apache.cordova.geolocation': '0.3.9',
+  'org.apache.cordova.geolocation': '0.3.12',
   'org.apache.cordova.device': '0.2.11'
 });
 
