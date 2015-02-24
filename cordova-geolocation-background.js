@@ -21,7 +21,7 @@
  *   GeolocationBG.setup()
  *   GeolocationBG.send()
  *     [internal, non-android]
- *   GeolocationBG.sendCallback()
+ *   GeolocationBG.sendCallbackSuccess()
  *     POSTs to the configured URL
  *     submits "data" as JSON content
  */
@@ -209,17 +209,21 @@ for (var key in window) {
    */
   send: function(location) {
     console.log('GeolocationBG: send: init');
+    console.log(JSON.stringify(location));
 
     if (!_.isObject(location)) {
-      console.error('GeolocationBG: send: error - location is invalid');
-    } 
+      console.error('GeolocationBG: send: error - location is invalid - not an object');
+      return;
+    }
+    if (_.has(location, 'location')) {
+      location = location.location;
+    }
+    if (_.has(location, 'coords')) {
+      location = location.coords;
+    }
     if (!_.has(location, 'longitude')) {
-      if (_.has(location, 'coords')) {
-        location = location.coords;
-      } else {
-        console.error('GeolocationBG: send: error - location is invalid');
-        return;
-      }
+      console.error('GeolocationBG: send: error - location is invalid - no coords');
+      return;
     }
 
     var options = _.extend({
@@ -232,8 +236,15 @@ for (var key in window) {
       }
     }, this.options);
 
-    HTTP.call('POST', this.options.url, options, function(res) {
-      this.sendCallback(res);
+    HTTP.call('POST', this.options.url, options, function(err, res) {
+      if (err) {
+        console.error('HTTP.call() callback error');
+        console.error(JSON.stringify(err));
+        return;
+      }
+      console.log('[debugging] HTTP.call() callback');
+      console.error(JSON.stringify(res));
+      GeolocationBG.sendCallbackSuccess(res);
     });
   },
 
@@ -242,7 +253,7 @@ for (var key in window) {
    *
    * @param object location
    */
-  sendCallback: function(res) {
+  sendCallbackSuccess: function(res) {
     console.log('GeolocationBG: send: success: ' + res);
     console.log('[js] BackgroundGeoLocation callback, callback = success' + res);
     //
@@ -268,7 +279,11 @@ for (var key in window) {
     if (_.isString(Meteor.userId)) {
       return Meteor.userId;
     }
-    return Meteor.userId();
+    try {
+      return Meteor.userId();
+    } catch (e) {
+      return '?';
+    }
   },
 
   /**
