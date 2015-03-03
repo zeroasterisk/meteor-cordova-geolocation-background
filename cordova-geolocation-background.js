@@ -208,8 +208,7 @@ for (var key in window) {
    * @param object location
    */
   send: function(location) {
-    console.log('GeolocationBG: send: init');
-    console.log(JSON.stringify(location));
+    console.log('GeolocationBG: send: ' + JSON.stringify(location));
 
     if (!_.isObject(location)) {
       console.error('GeolocationBG: send: error - location is invalid - not an object');
@@ -240,10 +239,12 @@ for (var key in window) {
       if (err) {
         console.error('HTTP.call() callback error');
         console.error(JSON.stringify(err));
+        console.log(JSON.stringify(res));
         return;
       }
       console.log('[debugging] HTTP.call() callback');
-      console.error(JSON.stringify(res));
+      //console.log(JSON.stringify(err));
+      //console.log(JSON.stringify(res));
       GeolocationBG.sendCallbackSuccess(res);
     });
   },
