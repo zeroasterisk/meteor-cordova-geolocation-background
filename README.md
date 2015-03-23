@@ -22,7 +22,7 @@ See an [example application using it here](https://github.com/zeroasterisk/meteo
 requires Meteor 0.9.2+
 
 ```
-meteor add zeroasterisk:meteor-cordova-geolocation-background
+meteor add zeroasterisk:cordova-geolocation-background
 ```
 
 
