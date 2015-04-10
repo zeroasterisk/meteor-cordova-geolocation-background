@@ -161,6 +161,14 @@ for (var key in window) {
 
   /**
    * Setup the common usage for this plugin
+   *
+   * - this.options.params setup for iOS & Android
+   * - callbacks setup for iOS (not Android)
+   *
+   * This setup should be run AFTER the device information is available
+   * and it should be run AFTER the Meteor.userId() information is available
+   * (because it can not be re-run in the background, at the time of location updates)
+   *
    */
   setup: function() {
     if (!_.isNull(this.bgGeo)) {
@@ -171,14 +179,24 @@ for (var key in window) {
       console.log('GeolocationBG.setup failed = not avail');
       return false;
     }
+
     // update the options with automatic params
     //   params will be sent in with 'location' in POST data (root level params)
-    this.options.params.userId = GeolocationBG.userId();
-    this.options.params.uuid = GeolocationBG.uuid();
-    this.options.params.device = GeolocationBG.device();
+    //
+    //   NOTE we setup the params now, but their values may change...
+    //   if they change, we should re-setup the params
+
+    // !!!! IDEA TO BE TESTED !!!!
+    // This should update these values when any of them change
+    Tracker.autorun(function(c) {
+      this.options.params.device = GeolocationBG.device();
+      this.options.params.userId = GeolocationBG.userId();
+      this.options.params.uuid = GeolocationBG.uuid();
+    }.bind(this));
+
 
     // This callback will be executed every time a geolocation is recorded in the background.
-    //   not used for Android
+    //   not used for Android <<
     var callbackFn = function(location) {
       console.log('GeolocationBG: setup: callbackFn: ' + _.values(location).join(','));
       console.log('[js] BackgroundGeoLocation callback:  ' + location.latitude + ',' + location.longitude);
@@ -187,7 +205,7 @@ for (var key in window) {
     };
 
     // This callback will be executed for error
-    //   not used for Android
+    //   not used for Android <<
     var failureFn = function(error) {
       console.log('GeolocationBG: setup: failureFn: ' + _.values(error).join(','));
       console.log('BackgroundGeoLocation error');
@@ -204,11 +222,14 @@ for (var key in window) {
 
   /**
    * Send the location via AJAX to GeolocationBG.url
+	 *
+   * - this is our callbacks for iOS (not Android)
+	 * - this relies on data, configured in this.options (see setup())
    *
    * @param object location
    */
   send: function(location) {
-    console.log('GeolocationBG: send: ' + JSON.stringify(location));
+    console.log('GeolocationBG: send location: ' + JSON.stringify(location));
 
     if (!_.isObject(location)) {
       console.error('GeolocationBG: send: error - location is invalid - not an object');
@@ -225,16 +246,24 @@ for (var key in window) {
       return;
     }
 
-    var options = _.extend({
-      data: {
-        longitude: location.longitude,
-        latitude: location.latitude,
-        userId: GeolocationBG.userId(),
-        uuid: GeolocationBG.uuid(),
-        device: GeolocationBG.device()
-      }
-    }, this.options);
+    // put all of the location object into our data
+    //   this has the longitude and latitude
+    var data = location;
 
+    // if we ran setup() then we already have userId, uuid, and device
+    if (_.has(this.options, 'params') && _.isObject(this.options.params)) {
+      data = _.extend(data, this.options.params);
+    } else {
+      // we can try to get the info now, but it's unlikely to work if we are backgrounded
+      data.userId = GeolocationBG.userId();
+      data.uuid = GeolocationBG.uuid();
+      data.device = GeolocationBG.device();
+    }
+    // add in all our configured options
+    var options = _.extend({data: data}, this.options);
+
+    console.log('GeolocationBG: send url: ' + this.options.url);
+    console.log('GeolocationBG: send options: ' + JSON.stringify(options));
     HTTP.call('POST', this.options.url, options, function(err, res) {
       if (err) {
         console.error('HTTP.call() callback error');
