@@ -1,3 +1,5 @@
+> **⚠️ Personal Hobby Project** — This is an independent, personal project by [Alan Blount](https://github.com/zeroasterisk). It is **not affiliated with, endorsed by, or supported by any employer, company, or organization**. No warranty; use at your own risk.
+
 **UPDATE: Source Cordova Package Changed / No longer free for Android / ?API changed?**
 
 The Cordova package has changed to [background-geolocation-lt](https://github.com/transistorsoft/cordova-background-geolocation-lt).
