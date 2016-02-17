@@ -110,7 +110,11 @@ server-side routes on IronRouter.
 * [instructions](http://www.meteorpedia.com/read/REST_API#iron-router server-side routes)
 * [rest-api](https://github.com/awatson1978/rest-api)
 
+**SECURITY NOTE:** All server routes should be within the server folder so the client doesn't get access to the source code.
+
 ```
+// in a /server/ folder, or wrapped in Meteor.isServer()
+
 Router.map(function() {
   // REST(ish) API
   // Cordova background/foreground can post GPS data HERE
