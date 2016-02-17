@@ -1,8 +1,19 @@
+**UPDATE: Source Cordova Package Changed / No longer free for Android / ?API changed?**
+
+The Cordova package has changed to [background-geolocation-lt](https://github.com/transistorsoft/cordova-background-geolocation-lt).
+And now the iOS version is free, but you have to pay a fair-bit to get the Android version.
+
+As of now, I don't have a need to update my Meteor wrapper, nor the money to buy the full version.  I suspect it's API has changed too.  I have only read it's documentation though, not tried it, so I don't know how well this will fair for you... **YMMV**
+
+I *may* update this to use the new versions, when I have the need.  Feel free to share pull requests with me, or sponser me a license :+1:
+
+----
+
 # Meteor + Cordova get Geolocation in Background
 
 This is a Meteor Smart Package which installs the
 [Cordova Background GeoLocation Plugin](http://plugins.cordova.io/#/package/com.romainstrock.cordova.background-geolocation)
-[GitHub](https://github.com/christocracy/cordova-plugin-background-geolocation),
+/ [on GitHub](https://github.com/christocracy/cordova-plugin-background-geolocation),
 and exposes a simpler API to setup, configure, and start/stop the background
 service.
 
